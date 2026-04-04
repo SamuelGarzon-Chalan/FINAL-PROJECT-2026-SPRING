@@ -37,7 +37,7 @@ namespace FinalBattler.Characters
         {
             if (!Skills.ContainsKey(skillName))
             {
-                Console.WriteLine("Skill not found.");
+                Console.WriteLine("Skill not found. check your grammar ");
                 return;
             }
 
@@ -45,7 +45,7 @@ namespace FinalBattler.Characters
 
             if (Energy < skill.EnergyCost)
             {
-                Console.WriteLine("Not enough energy.");
+                Console.WriteLine("Not enough energy. We are so cooked");
                 return;
             }
 

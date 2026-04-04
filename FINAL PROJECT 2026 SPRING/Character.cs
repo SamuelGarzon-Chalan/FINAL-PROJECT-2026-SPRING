@@ -48,6 +48,6 @@ namespace FinalBattler.Characters
             Console.WriteLine($"{Name} | HP: {Health}/{MaxHealth} | Attack: {AttackPower}");
         }
 
-        public abstract void Attack(Character target);
+        public abstract void Attack(Character target);// Each character type will implement its own attack logic for this reason i used abstrtactr
     }
 }
