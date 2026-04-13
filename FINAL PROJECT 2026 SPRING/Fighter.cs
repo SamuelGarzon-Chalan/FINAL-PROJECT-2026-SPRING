@@ -32,18 +32,21 @@ namespace FinalBattler.Characters
         {
             if (FighterType == FighterType.PotentialMan)
             {
-                AddSkill(new Skill("Power Strike", 30, 20, SkillType.Damage, 2));
-                AddSkill(new Skill("Shield Block", 0, 15, SkillType.Heal, 3));
+                AddSkill(new Skill("Divine Dogs", 30, 20, SkillType.Damage, 2));
+                AddSkill(new Skill("Toad", 10, 10, SkillType.Damage, 3));
+                AddSkill(new Skill("Max Elephant", 50, 60, SkillType.Damage, 4));
             }
             else if (FighterType == FighterType.Sayayin)
             {
-                AddSkill(new Skill("Fireball", 40, 25, SkillType.Damage, 2));
-                AddSkill(new Skill("Arcane Shield", 0, 20, SkillType.Heal, 3));
+                AddSkill(new Skill("Rising Rush", 25, 20, SkillType.Damage, 3));
+                AddSkill(new Skill("Kamehameha", 40, 30, SkillType.Damage, 4));
+                AddSkill(new Skill("Senzu Bean", 100, 50, SkillType.Heal, 5));
             }
             else if (FighterType == FighterType.Peruano)
             {
                 AddSkill(new Skill("Backstab", 35, 20, SkillType.Damage, 2));
-                AddSkill(new Skill("Evasion", 0, 15, SkillType.Heal, 3));
+                AddSkill(new Skill("Pocket sand", 10, 0, SkillType.Damage, 1));
+                AddSkill(new Skill("Pe causa", 0, 15, SkillType.Heal, 3));
             }
             else if (FighterType == FighterType.Boliviano)
             {
@@ -57,8 +60,8 @@ namespace FinalBattler.Characters
             }
             else if (FighterType == FighterType.GoodBrother)
             {
-                AddSkill(new Skill("Brotherly Punch", 30, 20, SkillType.Damage, 2));
-                AddSkill(new Skill("Supportive Aura", 0, 15, SkillType.Heal, 3));
+                AddSkill(new Skill("Piercing Blood", 70, 30, SkillType.Damage, 5));
+                AddSkill(new Skill("SuperNova", 30, 15, SkillType.Damage, 3));
             }
         }
 
@@ -66,6 +69,10 @@ namespace FinalBattler.Characters
         {
             Console.WriteLine($"{Name} attacks {target.Name}!");
             target.TakeDamage(AttackPower);
+        }
+        public bool IsSkillOnCooldown(string skillName)
+        {
+            return ActiveCooldowns.ContainsKey(skillName) && ActiveCooldowns[skillName] > 0;
         }
 
         public void UseSkill(string skillName, Character target)
@@ -84,6 +91,12 @@ namespace FinalBattler.Characters
                 return;
             }
 
+            if (IsSkillOnCooldown(skillName))
+            {
+                Console.WriteLine("Skill is on cooldown. Please wait and use another technique .");
+                return;
+            }
+
             Energy -= skill.EnergyCost;
 
             if (skill.SkillType == SkillType.Damage)
@@ -94,8 +107,21 @@ namespace FinalBattler.Characters
             {
                 Heal(skill.Power);
             }
+            
+            ActiveCooldowns[skillName] = skill.Couldown;
 
             Console.WriteLine($"{Name} energy: {Energy}");
+        }
+        public void ReduceCooldowns()
+        {
+            var keys = new List<string>(ActiveCooldowns.Keys);
+            foreach (var key in keys)
+            {
+                if (ActiveCooldowns[key] > 0)
+                {
+                    ActiveCooldowns[key]--;
+                }
+            }
         }
 
         public override void DisplayStats()
