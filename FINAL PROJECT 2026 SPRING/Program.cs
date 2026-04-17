@@ -4,38 +4,104 @@ using System.Linq;
 using FinalBattler.Characters;
 using FinalBattler.Abilities;
 using FinalBattler.Enums;
-using FINAL_Battler.Data;
+
 using FinalBattler.Data;
+using System.ComponentModel.Design;
 
 namespace FinalBattler
 {
     public  class Program
     {
         static void Main(string[] args)
+
         {
-            Fighter goku = new Fighter("Goku", FighterType.Sayayin, 120, 18, 40);
-            Fighter choso = new Fighter("Choso", FighterType.GoodBrother, 100, 15, 35);
+            Console.WriteLine("Choose an option:");
+            Console.WriteLine("1. Start Game");
+            Console.WriteLine("2. Load Game");
+            string startChoice = Console.ReadLine();
+            List<Fighter> teamA;
+            List<Fighter> teamB;
+            int numberOfRounds;
 
-            Fighter enemy1 = new Fighter("Johan", FighterType.Peruano, 95, 14, 30);
-            Fighter enemy2 = new Fighter("Diego", FighterType.Boliviano, 110, 16, 30);
-            Fighter enemy3 = new Fighter("Luis", FighterType.Veneco, 90, 17, 25);
+
+            if (startChoice == "1")
+            {
+                Fighter goku = new Fighter("Goku", FighterType.Sayayin, 120, 18, 40);
+                Fighter choso = new Fighter("Choso", FighterType.GoodBrother, 100, 15, 35);
+
+                Fighter enemy1 = new Fighter("Johan", FighterType.Peruano, 95, 14, 30);
+                Fighter enemy2 = new Fighter("Diego", FighterType.Boliviano, 110, 16, 30);
+                Fighter enemy3 = new Fighter("Luis", FighterType.Veneco, 90, 17, 25);
+
+                goku.AssingDefaultSkills();
+                choso.AssingDefaultSkills();
+                enemy1.AssingDefaultSkills();
+                enemy2.AssingDefaultSkills();
+                enemy3.AssingDefaultSkills();
+
+                teamA = new List<Fighter> { goku, choso };
+                teamB = new List<Fighter> { enemy1, enemy2, enemy3 };
+                numberOfRounds = 1;
+            }
+            else if (startChoice == "2")
+            {
+                GameData1 loadedData = SaveManager.LoadGame();
+                if (loadedData != null)
+                {
+                    teamA = loadedData.TeamA;
+                    teamB = loadedData.TeamB;
+                    numberOfRounds = loadedData.NumberOfRounds;
+
+                }
+                else
+                {
+                    Console.WriteLine("we cant find a game saved creating a new game");
+                    Fighter goku = new Fighter("Goku", FighterType.Sayayin, 120, 18, 40);
+                    Fighter choso = new Fighter("Choso", FighterType.GoodBrother, 100, 15, 35);
+
+                    Fighter enemy1 = new Fighter("Johan", FighterType.Peruano, 95, 14, 30);
+                    Fighter enemy2 = new Fighter("Diego", FighterType.Boliviano, 110, 16, 30);
+                    Fighter enemy3 = new Fighter("Luis", FighterType.Veneco, 90, 17, 25);
+
+                    goku.AssingDefaultSkills();
+                    choso.AssingDefaultSkills();
+                    enemy1.AssingDefaultSkills();
+                    enemy2.AssingDefaultSkills();
+                    enemy3.AssingDefaultSkills();
+
+                    teamA = new List<Fighter> { goku, choso };
+                    teamB = new List<Fighter> { enemy1, enemy2, enemy3 };
+                    numberOfRounds = 1;
+                }
+            }
+            else
+            {
+                Fighter goku = new Fighter("Goku", FighterType.Sayayin, 120, 18, 40);
+                Fighter choso = new Fighter("Choso", FighterType.GoodBrother, 100, 15, 35);
+
+                Fighter enemy1 = new Fighter("Johan", FighterType.Peruano, 95, 14, 30);
+                Fighter enemy2 = new Fighter("Diego", FighterType.Boliviano, 110, 16, 30);
+                Fighter enemy3 = new Fighter("Luis", FighterType.Veneco, 90, 17, 25);
+
+                goku.AssingDefaultSkills();
+                choso.AssingDefaultSkills();
+                enemy1.AssingDefaultSkills();
+                enemy2.AssingDefaultSkills();
+                enemy3.AssingDefaultSkills();
+
+                teamA = new List<Fighter> { goku, choso };
+                teamB = new List<Fighter> { enemy1, enemy2, enemy3 };
+                numberOfRounds = 1;
+            }
             
-            goku.AssingDefaultSkills();
-            choso.AssingDefaultSkills();
-            enemy1.AssingDefaultSkills();
-            enemy2.AssingDefaultSkills();
-            enemy3.AssingDefaultSkills();
 
-            List<Fighter> teamA = new List<Fighter> { goku ,choso };
-            List<Fighter> teamB = new List<Fighter> { enemy1 , enemy2 , enemy3  };
-            int numberOfRounds = 1;
-
-            GameData1 saveData = new GameData1();
-            saveData.TeamA = teamA;
-            saveData.TeamB = teamB;
-            saveData.NumberOfRounds = numberOfRounds;
-            saveData.SavedData=DateTime.Now;
-            SaveManager.SaveGame(saveData);
+                GameData1 saveData = new GameData1();
+                saveData.TeamA = teamA;
+                saveData.TeamB = teamB;
+                saveData.NumberOfRounds = numberOfRounds;
+                saveData.SavedData = DateTime.Now;
+                SaveManager.SaveGame(saveData);
+            
 
             while (teamA.Any(f => f.IsAlive) && teamB.Any(f => f.IsAlive))
             {
@@ -66,6 +132,7 @@ namespace FinalBattler
                     Console.WriteLine("Choose an action:");
                     Console.WriteLine("1. Basic Attack");
                     Console.WriteLine("2. Use Skill");
+                    Console.WriteLine("3. Save Game");
                     Console.Write("Option: ");
                     string actionChoice = Console.ReadLine();
 
@@ -95,6 +162,17 @@ namespace FinalBattler
                                 currentF.UseSkill(skill, target);
                             }
                         }
+                    }
+                    else if (actionChoice == "3")
+                    {
+                        GameData1 newSaveData = new GameData1();
+                        newSaveData.TeamA = teamA;
+                        newSaveData.TeamB = teamB;
+                        newSaveData.NumberOfRounds = numberOfRounds;
+                        newSaveData.SavedData = DateTime.Now;
+                        SaveManager.SaveGame(newSaveData);
+
+                        Console.WriteLine("GAME SAVED");
                     }
                     else
                     {

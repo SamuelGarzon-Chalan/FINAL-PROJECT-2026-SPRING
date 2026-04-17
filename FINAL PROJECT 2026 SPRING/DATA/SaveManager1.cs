@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 
-namespace FINAL_Battler.Data
+namespace FinalBattler.Data
 {
     public class SaveManager
     {
