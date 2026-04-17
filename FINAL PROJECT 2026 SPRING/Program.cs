@@ -4,6 +4,8 @@ using System.Linq;
 using FinalBattler.Characters;
 using FinalBattler.Abilities;
 using FinalBattler.Enums;
+using FINAL_Battler.Data;
+using FinalBattler.Data;
 
 namespace FinalBattler
 {
@@ -27,6 +29,13 @@ namespace FinalBattler
             List<Fighter> teamA = new List<Fighter> { goku ,choso };
             List<Fighter> teamB = new List<Fighter> { enemy1 , enemy2 , enemy3  };
             int numberOfRounds = 1;
+
+            GameData1 saveData = new GameData1();
+            saveData.TeamA = teamA;
+            saveData.TeamB = teamB;
+            saveData.NumberOfRounds = numberOfRounds;
+            saveData.SavedData=DateTime.Now;
+            SaveManager.SaveGame(saveData);
 
             while (teamA.Any(f => f.IsAlive) && teamB.Any(f => f.IsAlive))
             {
