@@ -10,11 +10,13 @@ using System.ComponentModel.Design;
 
 namespace FinalBattler
 {
-    public  class Program
+    public class Program
     {
-        static void Main(string[] args)
+        static Random random = new Random();
+        static async Task Main(string[] args)
 
         {
+
             Console.WriteLine("Choose an option:");
             Console.WriteLine("1. Start Game");
             Console.WriteLine("2. Load Game");
@@ -93,21 +95,24 @@ namespace FinalBattler
                 teamB = new List<Fighter> { enemy1, enemy2, enemy3 };
                 numberOfRounds = 1;
             }
-            
 
-                GameData1 saveData = new GameData1();
-                saveData.TeamA = teamA;
-                saveData.TeamB = teamB;
-                saveData.NumberOfRounds = numberOfRounds;
-                saveData.SavedData = DateTime.Now;
-                SaveManager.SaveGame(saveData);
-            
+
+            GameData1 saveData = new GameData1();
+            saveData.TeamA = teamA;
+            saveData.TeamB = teamB;
+            saveData.NumberOfRounds = numberOfRounds;
+            saveData.SavedData = DateTime.Now;
+            SaveManager.SaveGame(saveData);
+
+            CancellationTokenSource enemyAttackTokenSource = new CancellationTokenSource();
+            Task enemyAttackTask = AutoAttack(teamA, teamB, enemyAttackTokenSource.Token);
+
 
             while (teamA.Any(f => f.IsAlive) && teamB.Any(f => f.IsAlive))
             {
                 Console.WriteLine();
-                Console.WriteLine($"========== ROUND {numberOfRounds} ==========");//TODO add a delay here to make it more dramatic and to give the player time to read the round number before the teams are displayed
-                Console.WriteLine();//ALSO MAYBE HERE ADD THE TIME TABLE TO SAVE THE DATE WHEN WAS CREATED THE GAME AND WHIT THIS IDEA CREATE JSON 
+                Console.WriteLine($"========== ROUND {numberOfRounds} ==========");
+                Console.WriteLine();
 
                 Console.WriteLine("TEAM A");
                 DisplayTeam(teamA);
@@ -118,9 +123,9 @@ namespace FinalBattler
 
                 Console.WriteLine();
                 List<Fighter> aliveTeamA = teamA.Where(f => f.IsAlive).ToList();
-                
+
                 foreach (Fighter currentF in aliveTeamA)
-                { 
+                {
                     if (!teamB.Any(f => f.IsAlive))
                     {
                         break;
@@ -136,8 +141,7 @@ namespace FinalBattler
                     Console.Write("Option: ");
                     string actionChoice = Console.ReadLine();
 
-                    if (actionChoice == "1")//TODO i NEED TO DO Async / Awai for the enemies attack while you are thinking about your move 
-                    {
+                    if (actionChoice == "1") {
                         Fighter target = SelectTarget(teamB, "choose an enemy");
                         if (target != null)
                         {
@@ -185,42 +189,42 @@ namespace FinalBattler
                     break;
                 }
                 Console.WriteLine();
-                Console.WriteLine("=== ENEMY TEAM TURN ===");
+                //Console.WriteLine("=== ENEMY TEAM TURN ===");
 
-                List<Fighter> aliveTeamB = teamB.Where(f => f.IsAlive).ToList();
+                //List<Fighter> aliveTeamB = teamB.Where(f => f.IsAlive).ToList();
 
-                foreach (Fighter enemy in aliveTeamB)
-                {
-                    if (!teamA.Any(f => f.IsAlive))
-                    {
-                        break;
-                    }
+                //foreach (Fighter enemy in aliveTeamB)
+                //{
+                //    if (!teamA.Any(f => f.IsAlive))
+                //    {
+                //        break;
+                //    }
 
-                    Fighter target = teamA.Where(f => f.IsAlive).OrderBy(f => f.Health).FirstOrDefault();
+                //    Fighter target = teamA.Where(f => f.IsAlive).OrderBy(f => f.Health).FirstOrDefault();
 
-                    if (target == null)
-                    {
-                        break;
-                    }
+                //    if (target == null)
+                //    {
+                //        break;
+                //    }
 
-                    if ((enemy.Name == "Diego" || enemy.Name == "Luis") && enemy.Skills.Count > 0)
-                    {
-                        string firstSkillName = enemy.Skills.Keys.First();
+                //    if ((enemy.Name == "Diego" || enemy.Name == "Luis") && enemy.Skills.Count > 0)
+                //    {
+                //        string firstSkillName = enemy.Skills.Keys.First();
 
-                        if (!enemy.IsSkillOnCooldown(firstSkillName))
-                        {
-                            enemy.UseSkill(firstSkillName, target);
-                        }
-                        else
-                        {
-                            enemy.Attack(target);
-                        }
-                    }
-                    else
-                    {
-                        enemy.Attack(target);//jnohan only basic attack because he is a support and all this methods is like an ai but very simple
-                    }
-                }
+                //        if (!enemy.IsSkillOnCooldown(firstSkillName))
+                //        {
+                //            enemy.UseSkill(firstSkillName, target);
+                //        }
+                //        else
+                //        {
+                //            enemy.Attack(target);
+                //        }
+                //    }
+                //    else
+                //    {
+                //        enemy.Attack(target);
+                //    }
+                //}
 
                 foreach (Fighter fighter in teamA)
                 {
@@ -234,6 +238,9 @@ namespace FinalBattler
 
                 numberOfRounds++;
             }
+
+            enemyAttackTokenSource.Cancel();
+            await enemyAttackTask;
 
             Console.WriteLine();
             Console.WriteLine();
@@ -254,7 +261,7 @@ namespace FinalBattler
             List<Fighter> defeatedFighters = team.Where(f => !f.IsAlive).ToList();
 
             Console.WriteLine("Alive Fighters:");
-            for (int i = 0; i < aliveFighters.Count; i++)  
+            for (int i = 0; i < aliveFighters.Count; i++)
             {
                 Console.Write($"{i + 1}. ");
                 aliveFighters[i].DisplayStats();
@@ -306,6 +313,66 @@ namespace FinalBattler
             }
 
             return aliveTargets[targetChoice - 1];
+        }
+        static async Task AutoAttack(List<Fighter> teamA, List<Fighter> teamB, CancellationToken token)
+        {
+            while (teamA.Any(f => f.IsAlive) && teamB.Any(f => f.IsAlive) && !token.IsCancellationRequested)
+            {
+                await Task.Delay(7000);
+
+                if (!teamA.Any(f => f.IsAlive) || !teamB.Any(f => f.IsAlive))
+                {
+                    break;
+                }
+
+                List<Fighter> aliveEnemies = teamB.Where(f => f.IsAlive).ToList();
+                List<Fighter> aliveTargets = teamA.Where(f => f.IsAlive).ToList();
+
+                if (aliveTargets.Count == 0 || aliveEnemies.Count == 0)
+                {
+                    break;
+                }
+
+                Fighter enemy = aliveEnemies[random.Next(aliveEnemies.Count)];
+                Fighter target = aliveTargets[random.Next(aliveTargets.Count)];
+
+                Console.WriteLine();
+                Console.WriteLine("enemy attack ");
+
+                if (enemy.Skills.Count > 0)
+                {
+                    string firstSkillName = enemy.Skills.Keys.First();
+                    Skill skill = enemy.Skills[firstSkillName];
+
+                    if (!enemy.IsSkillOnCooldown(firstSkillName))
+                    {
+                        if (skill.SkillType == SkillType.Damage)
+                        {
+                            Console.WriteLine($"{enemy.Name} used {skill.Name} on {target.Name}!");
+                            enemy.UseSkill(firstSkillName, target);
+                        }
+                        else if (skill.SkillType == SkillType.Heal)
+                        {
+                            Console.WriteLine($"{enemy.Name} used {skill.Name} on himself!");
+                            enemy.UseSkill(firstSkillName, enemy);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"{enemy.Name} used a basic attack on {target.Name}");
+                        enemy.Attack(target);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"{enemy.Name} used a basic attack on {target.Name}.");
+                    enemy.Attack(target);
+                }
+            
+        
+    
+
+            }
         }
     }
 }

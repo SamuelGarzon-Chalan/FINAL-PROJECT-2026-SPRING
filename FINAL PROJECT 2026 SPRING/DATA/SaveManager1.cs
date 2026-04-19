@@ -18,7 +18,7 @@ namespace FinalBattler.Data
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error saving game: {ex.Message}");
+                Console.WriteLine("Error saving game: ");
             }
 
         }
