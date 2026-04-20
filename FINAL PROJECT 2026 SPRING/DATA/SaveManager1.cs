@@ -14,14 +14,13 @@ namespace FinalBattler.Data
             {
                 string jsonString = JsonSerializer.Serialize(gameData, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(SaveFilePath, jsonString);
-                Console.WriteLine("Game saved successfully.");
+                Console.WriteLine($"Game saved successfully on {gameData.SavedData}");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error saving game: ");
             }
-
-        }
+         }
         public static GameData1 LoadGame()
         {
             try
@@ -33,6 +32,7 @@ namespace FinalBattler.Data
                 }
                 string jsonString = File.ReadAllText(SaveFilePath);
                 GameData1 loadedData = JsonSerializer.Deserialize<GameData1>(jsonString);
+                Console.WriteLine($"the game was  loaded on {loadedData.SavedData}");
                 return loadedData;
             }
             catch (Exception ex)

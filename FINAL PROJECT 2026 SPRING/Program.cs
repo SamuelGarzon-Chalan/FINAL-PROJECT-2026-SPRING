@@ -97,18 +97,13 @@ namespace FinalBattler
             }
 
 
-            GameData1 saveData = new GameData1();
-            saveData.TeamA = teamA;
-            saveData.TeamB = teamB;
-            saveData.NumberOfRounds = numberOfRounds;
-            saveData.SavedData = DateTime.Now;
-            SaveManager.SaveGame(saveData);
+           
 
             CancellationTokenSource enemyAttackTokenSource = new CancellationTokenSource();
             Task enemyAttackTask = AutoAttack(teamA, teamB, enemyAttackTokenSource.Token);
 
 
-            while (teamA.Any(f => f.IsAlive) && teamB.Any(f => f.IsAlive))
+            while (teamA.Any(character => character.IsAlive) && teamB.Any(character => character.IsAlive))
             {
                 Console.WriteLine();
                 Console.WriteLine($"========== ROUND {numberOfRounds} ==========");
@@ -122,11 +117,11 @@ namespace FinalBattler
                 DisplayTeam(teamB);
 
                 Console.WriteLine();
-                List<Fighter> aliveTeamA = teamA.Where(f => f.IsAlive).ToList();
+                List<Fighter> aliveTeamA = teamA.Where(character => character.IsAlive).ToList();
 
                 foreach (Fighter currentF in aliveTeamA)
                 {
-                    if (!teamB.Any(f => f.IsAlive))
+                    if (!teamB.Any(character => character   .IsAlive))
                     {
                         break;
                     }
@@ -136,12 +131,13 @@ namespace FinalBattler
 
                     Console.WriteLine("Choose an action:");
                     Console.WriteLine("1. Basic Attack");
-                    Console.WriteLine("2. Use Skill");
+                    Console.WriteLine("2. Use Skill/ability");
                     Console.WriteLine("3. Save Game");
-                    Console.Write("Option: ");
+                    Console.Write("\nOption: ");
                     string actionChoice = Console.ReadLine();
 
-                    if (actionChoice == "1") {
+                    if (actionChoice == "1") 
+                    {
                         Fighter target = SelectTarget(teamB, "choose an enemy");
                         if (target != null)
                         {
@@ -161,7 +157,7 @@ namespace FinalBattler
                         else
                         {
                             Fighter target = SelectTarget(teamB, "choose an enemy");
-                            if (target != null)//also i need to recover energy for all the character because they cant refill and the enemies cant fight 
+                            if (target != null)
                             {
                                 currentF.UseSkill(skill, target);
                             }
@@ -184,51 +180,20 @@ namespace FinalBattler
                     }
                 }
 
-                if (!teamB.Any(f => f.IsAlive))
+                if (!teamB.Any(character => character.IsAlive))
                 {
                     break;
                 }
                 Console.WriteLine();
-                //Console.WriteLine("=== ENEMY TEAM TURN ===");
 
-                //List<Fighter> aliveTeamB = teamB.Where(f => f.IsAlive).ToList();
-
-                //foreach (Fighter enemy in aliveTeamB)
-                //{
-                //    if (!teamA.Any(f => f.IsAlive))
-                //    {
-                //        break;
-                //    }
-
-                //    Fighter target = teamA.Where(f => f.IsAlive).OrderBy(f => f.Health).FirstOrDefault();
-
-                //    if (target == null)
-                //    {
-                //        break;
-                //    }
-
-                //    if ((enemy.Name == "Diego" || enemy.Name == "Luis") && enemy.Skills.Count > 0)
-                //    {
-                //        string firstSkillName = enemy.Skills.Keys.First();
-
-                //        if (!enemy.IsSkillOnCooldown(firstSkillName))
-                //        {
-                //            enemy.UseSkill(firstSkillName, target);
-                //        }
-                //        else
-                //        {
-                //            enemy.Attack(target);
-                //        }
-                //    }
-                //    else
-                //    {
-                //        enemy.Attack(target);
-                //    }
-                //}
 
                 foreach (Fighter fighter in teamA)
                 {
                     fighter.ReduceCooldowns();
+                    if (fighter.IsAlive)
+                    {
+                        fighter.RecoverEnergyOrStamina(15);
+                    }
                 }
 
                 foreach (Fighter fighter in teamB)
@@ -245,7 +210,7 @@ namespace FinalBattler
             Console.WriteLine();
             Console.WriteLine();
 
-            if (teamA.Any(f => f.IsAlive))
+            if (teamA.Any(character => character.IsAlive))
             {
                 Console.WriteLine("TEAM A WINS!");
             }
@@ -257,14 +222,14 @@ namespace FinalBattler
 
         static void DisplayTeam(List<Fighter> team)
         {
-            List<Fighter> aliveFighters = team.Where(f => f.IsAlive).ToList();
-            List<Fighter> defeatedFighters = team.Where(f => !f.IsAlive).ToList();
+            List<Fighter> aliveFighters = team.Where(character => character.IsAlive).ToList();
+            List<Fighter> defeatedFighters = team.Where(character => !character.IsAlive).ToList();
 
             Console.WriteLine("Alive Fighters:");
-            for (int i = 0; i < aliveFighters.Count; i++)
+            for (int fighterIndex = 0; fighterIndex < aliveFighters.Count; fighterIndex++)
             {
-                Console.Write($"{i + 1}. ");
-                aliveFighters[i].DisplayStats();
+                Console.Write($"{fighterIndex + 1}. ");
+                aliveFighters[fighterIndex].DisplayStats();
             }
 
             if (defeatedFighters.Any())
@@ -279,7 +244,7 @@ namespace FinalBattler
 
         static Fighter SelectTarget(List<Fighter> enemyTeam, string message)
         {
-            List<Fighter> aliveTargets = enemyTeam.Where(f => f.IsAlive).ToList();
+            List<Fighter> aliveTargets = enemyTeam.Where(character => character.IsAlive).ToList();
 
             if (!aliveTargets.Any())
             {
@@ -287,12 +252,12 @@ namespace FinalBattler
                 return null;
             }
 
-            Console.WriteLine(message);
+            
 
-            for (int i = 0; i < aliveTargets.Count; i++)
+            for (int fighterIndex = 0; fighterIndex < aliveTargets.Count; fighterIndex++)
             {
-                Console.Write($"{i + 1}. ");
-                aliveTargets[i].DisplayStats();
+                Console.Write($"{fighterIndex + 1}. ");
+                aliveTargets[fighterIndex].DisplayStats();
             }
 
             Console.Write("Target number: ");
@@ -316,17 +281,17 @@ namespace FinalBattler
         }
         static async Task AutoAttack(List<Fighter> teamA, List<Fighter> teamB, CancellationToken token)
         {
-            while (teamA.Any(f => f.IsAlive) && teamB.Any(f => f.IsAlive) && !token.IsCancellationRequested)
+            while (teamA.Any(characcther => characcther.IsAlive) && teamB.Any(characcther => characcther.IsAlive) && !token.IsCancellationRequested)
             {
                 await Task.Delay(7000);
 
-                if (!teamA.Any(f => f.IsAlive) || !teamB.Any(f => f.IsAlive))
+                if (!teamA.Any(characcther => characcther.IsAlive) || !teamB.Any(characcther => characcther.IsAlive))
                 {
                     break;
                 }
 
-                List<Fighter> aliveEnemies = teamB.Where(f => f.IsAlive).ToList();
-                List<Fighter> aliveTargets = teamA.Where(f => f.IsAlive).ToList();
+                List<Fighter> aliveEnemies = teamB.Where(characcther => characcther.IsAlive).ToList();
+                List<Fighter> aliveTargets = teamA.Where(characcther => characcther.IsAlive).ToList();
 
                 if (aliveTargets.Count == 0 || aliveEnemies.Count == 0)
                 {

@@ -21,10 +21,7 @@ namespace FinalBattler.Characters
 
         public void TakeDamage(int amount)
         {
-            if (amount < 0) amount = 0;
-
-            Health -= amount;
-
+            
             if (Health < 0)
                 Health = 0;
 
@@ -48,6 +45,6 @@ namespace FinalBattler.Characters
             Console.WriteLine($"{Name} | HP: {Health}/{MaxHealth} | Attack: {AttackPower}");
         }
 
-        public abstract void Attack(Character target);// Each character type will implement its own attack logic for this reason i used abstrtactr
+        public abstract void Attack(Character target);
     }
 }

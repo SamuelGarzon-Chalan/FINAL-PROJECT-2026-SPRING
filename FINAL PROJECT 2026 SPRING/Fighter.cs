@@ -50,18 +50,19 @@ namespace FinalBattler.Characters
             }
             else if (FighterType == FighterType.Boliviano)
             {
-                AddSkill(new Skill("Earthquake", 45, 30, SkillType.Damage, 3));
-                AddSkill(new Skill("Stone Skin", 0, 25, SkillType.Heal, 4));
+                AddSkill(new Skill("Surf", 45, 30, SkillType.Damage, 3));
+                AddSkill(new Skill("Aqua Skin", 0, 25, SkillType.Heal, 4));
             }
             else if (FighterType == FighterType.Veneco)
             {
                 AddSkill(new Skill("Poison Dart", 25, 15, SkillType.Damage, 2));
-                AddSkill(new Skill("Toxic Shield", 0, 20, SkillType.Heal, 3));
+                AddSkill(new Skill("calcium regeneration", 0, 20, SkillType.Heal, 3));
             }
             else if (FighterType == FighterType.GoodBrother)
             {
                 AddSkill(new Skill("Piercing Blood", 70, 30, SkillType.Damage, 5));
-                AddSkill(new Skill("SuperNova", 30, 15, SkillType.Damage, 3));
+                AddSkill(new Skill("SuperNova", 30, 15, SkillType.Damage, 2));
+                AddSkill(new Skill("Blood Bond", 0, 40, SkillType.Heal, 4));
             }
         }
 
@@ -87,7 +88,7 @@ namespace FinalBattler.Characters
 
             if (Energy < skill.EnergyCost)
             {
-                Console.WriteLine("Not enough energy. We are so cooked");
+                Console.WriteLine("Not enough energy. you are so cooked");
                 return;
             }
 
@@ -114,12 +115,13 @@ namespace FinalBattler.Characters
         }
         public void ReduceCooldowns()
         {
-            var keys = new List<string>(ActiveCooldowns.Keys);
-            foreach (var key in keys)
+            var skillNames = new List<string>(ActiveCooldowns.Keys);
+
+            foreach (var skillName in skillNames)
             {
-                if (ActiveCooldowns[key] > 0)
+                if (ActiveCooldowns[skillName] > 0)
                 {
-                    ActiveCooldowns[key]--;
+                    ActiveCooldowns[skillName]--;
                 }
             }
         }
@@ -135,6 +137,12 @@ namespace FinalBattler.Characters
             {
                 skill.Value.DisplaySkill();
             }
+        }
+        public void RecoverEnergyOrStamina(int amount)
+        {
+            Energy += amount;
+            Console.WriteLine($"{Name} recovers {amount} energy.");
+            
         }
     }
 }
