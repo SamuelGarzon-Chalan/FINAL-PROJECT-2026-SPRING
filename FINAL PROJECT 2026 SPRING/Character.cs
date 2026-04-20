@@ -21,7 +21,7 @@ namespace FinalBattler.Characters
 
         public void TakeDamage(int amount)
         {
-            
+            Health -= amount;
             if (Health < 0)
                 Health = 0;
 
